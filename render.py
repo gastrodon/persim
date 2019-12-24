@@ -6,6 +6,7 @@ json = lambda body : render_code_block(body, "JSON")
 
 # Mean functions
 
+def dict_list(sectoin):
     """
     Takes a list of maps (like those of headers or query strings)
     and returns a markdown table representing that map
@@ -21,7 +22,7 @@ json = lambda body : render_code_block(body, "JSON")
 
     return md.render_table(cells)
 
-def render_table(cells, filler = " "):
+def table(cells, filler = " "):
     """
     Takes a 2d array, makes a markdown table
     filler: content to fill empty cells with
@@ -34,7 +35,7 @@ def render_table(cells, filler = " "):
 
     return "\n".join(rows)
 
-def render_table_row(cells, size = None, filler = " "):
+def table_row(cells, size = None, filler = " "):
     """
     Tales an array, makes a markdown table row
     size: row size, if greater than the number of cells
@@ -44,7 +45,7 @@ def render_table_row(cells, size = None, filler = " "):
     size = size if size else len(cells)
     return "|" + "".join(f"{cell}|" for cell in cells) + "".join(s for s in f"{filler}|" * (size - len(cells)))
 
-def render_code_block(content, lang = ""):
+def code_block(content, lang = ""):
     """
     Takes text and an optional lang to render a code block
     content: content inside of this code block
