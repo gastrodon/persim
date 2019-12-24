@@ -1,3 +1,19 @@
+def render_map_list(sectoin):
+    """
+    Takes a list of maps (like those of headers or query strings)
+    and returns a markdown table representing that map
+    sectoin: map list to render
+    """
+    if not len(sectoin):
+        return ""
+
+    cells = [
+        list(sectoin[0].keys()),
+        *[list(it.values()) for it in sectoin]
+    ]
+
+    return md.render_table(cells)
+
 def render_table(cells, filler = " "):
     """
     Takes a 2d array, makes a markdown table
@@ -20,3 +36,11 @@ def render_table_row(cells, size = None, filler = " "):
 
     size = size if size else len(cells)
     return "|" + "".join(f"{cell}|" for cell in cells) + "".join(s for s in f"{filler}|" * (size - len(cells)))
+
+def render_code_block(content, lang = ""):
+    """
+    Takes text and an optional lang to render a code block
+    content: content inside of this code block
+    lang: language for syntax highlighting
+    """
+    return f"```{lang}\n{content}\n```"
