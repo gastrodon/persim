@@ -1,0 +1,14 @@
+# ignore environment stuff
+
+venv
+__pycache__
+
+# ignore test files
+
+*.yml
+*.json
+
+# ignore notes I keep
+
+*.txt
+templates
