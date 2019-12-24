@@ -67,6 +67,13 @@ class Document:
 
         self._doc["routes"] = routes
 
+    def _parse_globals_request_headers(self):
+        routes = self.routes
+        g_headers = self.globals.get("request_headers", {})
+
+        for route in routes:
+            for method in routes[route]:
+                valid = [*g_headers.get("*", []), *g_headers.get(method, [])]
                 valid = [v for v in valid if len(v)]
                 existing = routes[route][method].get("headers", [])
                 routes[route][method]["headers"] = [*valid, *existing]
