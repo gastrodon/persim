@@ -3,6 +3,10 @@ import yaml
 class Document:
     def __init__(self, content):
         self._doc = yaml.safe_load(content)
+        self._global_parser_map = {
+            "responses": self._parse_globals_responses,
+            "request_headers": self._parse_globals_request_headers
+        }
 
     def _get_var(self, name):
         var = self.vars
@@ -47,6 +51,14 @@ class Document:
     def parse_variables(self):
         self._doc["globals"] = self._get_var_dict(self.globals)
         self._doc["routes"] = self._get_var_dict(self.routes)
+        return self
+
+                valid = [v for v in valid if len(v)]
+
+    def parse_globals(self):
+        for name in self.globals:
+            self._global_parser_map[name]()
+
         return self
 
     @property

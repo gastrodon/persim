@@ -8,7 +8,7 @@ def get_args():
 
 def main():
     args = get_args()
-    parsed_document = load_document(args.file[0]).parse_variables()
+    parsed_document = load_document(args.file[0]).parse_variables().parse_globals()
     print(json.dumps(parsed_document.routes))
 
 def load_document(name):
