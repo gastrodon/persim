@@ -2,7 +2,7 @@ import yaml
 
 class Document:
     def __init__(self, content):
-        self._doc = yaml.safe_load(content)
+        self.json = yaml.safe_load(content)
         self._global_parser_map = {
             "responses": self._parse_globals_responses,
             "request_headers": self._parse_globals_request_headers
@@ -49,8 +49,8 @@ class Document:
         return section
 
     def parse_variables(self):
-        self._doc["globals"] = self._get_var_dict(self.globals)
-        self._doc["routes"] = self._get_var_dict(self.routes)
+        self.json["globals"] = self._get_var_dict(self.globals)
+        self.json["routes"] = self._get_var_dict(self.routes)
         return self
 
     def _parse_globals_responses(self):
@@ -65,7 +65,7 @@ class Document:
                 valid = g_responses.get(method, {})
                 routes[route][method]["responses"] = {**match_all, **valid, **existing}
 
-        self._doc["routes"] = routes
+        self.json["routes"] = routes
 
     def _parse_globals_request_headers(self):
         routes = self.routes
@@ -78,7 +78,7 @@ class Document:
                 existing = routes[route][method].get("headers", [])
                 routes[route][method]["headers"] = [*valid, *existing]
 
-        self._doc["routes"] = routes
+        self.json["routes"] = routes
 
     def parse_globals(self):
         for name in self.globals:
@@ -88,12 +88,12 @@ class Document:
 
     @property
     def routes(self):
-        return self._doc.get("routes", {})
+        return self.json.get("routes", {})
 
     @property
     def vars(self):
-        return self._doc.get("vars", {})
+        return self.json.get("vars", {})
 
     @property
     def globals(self):
-        return self._doc.get("globals", {})
+        return self.json.get("globals", {})
