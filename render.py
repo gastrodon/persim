@@ -60,3 +60,49 @@ def foldable(summary, details):
 {details}
 </details>
 """
+
+def response(code, section):
+    if section.get("title"):
+        summary = f"{code} - {section['title']}"
+    else:
+        summary = code
+
+    full = section.get("description", "")
+
+    _headers = section.get("headers", [])
+    if len(_headers):
+        full += f"{headers(_headers)}\n\n"
+
+    _body = section.get("body", {})
+    if _body.get("content"):
+        full += f"{body(_body['content'], _body.get('lang', ''))}\n\n"
+
+    return foldable(summary, full)
+
+def request(path, method, section):
+    if section.get("description"):
+        full = f"{section['description']}\n\n"
+    else:
+        full = ""
+
+    _headers = section.get("headers", [])
+    if len(_headers):
+        full += f"{headers(_headers)}\n\n"
+
+    _qs = section.get("query_strings", [])
+    if len(_qs):
+        full += f"{query_strings(_qs)}\n\n"
+
+    _body = section.get("body", {})
+    if _body.get("content"):
+        full += f"{body(_body['content'], _body.get('lang', ''))}\n\n"
+
+    _responses = section.get("responses", {})
+    if len(_responses):
+        response_section = ""
+        for code in _responses:
+            response_section += response(code, _responses[code])
+
+        full += f"__responses__\n\n{response_section}"
+
+    return foldable(f"{method} `{path}`", full)
