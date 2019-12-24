@@ -1,4 +1,11 @@
-def render_map_list(sectoin):
+# Friendly api
+
+headers = lambda h : render_map_list(h)
+query_strings = lambda qs : render_map_list(qs)
+json = lambda body : render_code_block(body, "JSON")
+
+# Mean functions
+
     """
     Takes a list of maps (like those of headers or query strings)
     and returns a markdown table representing that map
