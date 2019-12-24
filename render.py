@@ -1,8 +1,9 @@
 # Friendly api
 
-headers = lambda h : render_map_list(h)
-query_strings = lambda qs : render_map_list(qs)
-json = lambda body : render_code_block(body, "JSON")
+headers = lambda h : dict_list(h)
+query_strings = lambda qs : dict_list(qs)
+body = lambda content, lang : code_block(content, lang)
+json = lambda content : code_block(content, "JSON")
 
 # Mean functions
 
@@ -20,7 +21,7 @@ def dict_list(sectoin):
         *[list(it.values()) for it in sectoin]
     ]
 
-    return md.render_table(cells)
+    return table(cells)
 
 def table(cells, filler = " "):
     """
@@ -30,7 +31,7 @@ def table(cells, filler = " "):
 
     size_horizontal = max([len(sub) for sub in cells])
     separator = " - ".join("|" * (1 + size_horizontal))
-    rows = [render_table_row(row, size = size_horizontal, filler = filler) for row in cells]
+    rows = [table_row(row, size = size_horizontal, filler = filler) for row in cells]
     rows.insert(1, separator)
 
     return "\n".join(rows)
