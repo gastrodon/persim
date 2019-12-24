@@ -45,6 +45,7 @@ class Document:
         return section
 
     def parse_variables(self):
+        self._doc["globals"] = self._get_var_dict(self.globals)
         self._doc["routes"] = self._get_var_dict(self.routes)
         return self
 
