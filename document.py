@@ -31,16 +31,16 @@ class Document:
         return names
 
     def _get_var_dict(self, section):
-        for key in section:
-            val = section[key]
+        for name in section:
+            val = section[name]
             if isinstance(val, dict):
-                section[key] = self._get_var_dict(val)
+                section[name] = self._get_var_dict(val)
 
             if isinstance(val, str):
-                section[key] = self._get_var(val)
+                section[name] = self._get_var(val)
 
             if isinstance(val, list):
-                section[key] = self._get_var_list(val)
+                section[name] = self._get_var_list(val)
 
         return section
 
