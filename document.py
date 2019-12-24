@@ -53,7 +53,25 @@ class Document:
         self._doc["routes"] = self._get_var_dict(self.routes)
         return self
 
+    def _parse_globals_responses(self):
+        routes = self.routes
+        g_responses = self.globals.get("responses", {})
+        match_all = g_responses.get("*", {})
+
+        for route in routes:
+            for method in routes[route]:
+                existing = routes[route][method].get("responses", {})
+                match_all = g_responses.get("*", {})
+                valid = g_responses.get(method, {})
+                routes[route][method]["responses"] = {**match_all, **valid, **existing}
+
+        self._doc["routes"] = routes
+
                 valid = [v for v in valid if len(v)]
+                existing = routes[route][method].get("headers", [])
+                routes[route][method]["headers"] = [*valid, *existing]
+
+        self._doc["routes"] = routes
 
     def parse_globals(self):
         for name in self.globals:
