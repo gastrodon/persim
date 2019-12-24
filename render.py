@@ -52,3 +52,10 @@ def code_block(content, lang = ""):
     lang: language for syntax highlighting
     """
     return f"```{lang}\n{content}\n```"
+
+def foldable(summary, details):
+    return f"""<details>
+<summary>{summary}</summary>
+{details}
+</details>
+"""
