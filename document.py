@@ -1,4 +1,5 @@
 import yaml
+import render
 
 class Document:
     def __init__(self, content):
@@ -97,3 +98,7 @@ class Document:
     @property
     def globals(self):
         return self.json.get("globals", {})
+
+    @property
+    def rendered(self):             # path, content
+        return "\n\n".join(render.route(it, self.routes[it]) for it in self.routes)
