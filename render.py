@@ -1,9 +1,11 @@
+import json
+
 # Friendly api
 
 headers = lambda h : dict_list(h)
 query_strings = lambda qs : dict_list(qs)
 body = lambda content, lang : code_block(content, lang)
-json = lambda content : code_block(content, "JSON")
+json_body = lambda content : code_block(json.dumps(content, indent = 4), "JSON")
 
 # Mean functions
 
