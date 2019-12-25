@@ -64,47 +64,62 @@ def foldable(summary, details):
 """
 
 def response(code, section):
-    if section.get("title"):
-        summary = f"{code} - {section['title']}"
-    else:
-        summary = code
+    full = f"- {code} - {section.get('title', '?')}"
+    full += find_string("description", section)
+    full += find_list("headers", section)
+    full += find_body(section)
 
-    full = section.get("description", "")
-
-    _headers = section.get("headers", [])
-    if len(_headers):
-        full += f"{headers(_headers)}\n\n"
-
-    _body = section.get("body", {})
-    if _body.get("content"):
-        full += f"{body(_body['content'], _body.get('lang', ''))}\n\n"
-
-    return foldable(summary, full)
+    return full
 
 def request(path, method, section):
-    if section.get("description"):
-        full = f"{section['description']}\n\n"
-    else:
-        full = ""
+    full = find_string("description", section)
+    full += find_list("headers", section)
+    full += find_list("query_strings", section)
+    full += find_body(section)
+    full += find_responses(section)
 
-    _headers = section.get("headers", [])
-    if len(_headers):
-        full += f"{headers(_headers)}\n\n"
+    return foldable(f"{method} {path}", full)
 
-    _qs = section.get("query_strings", [])
-    if len(_qs):
-        full += f"{query_strings(_qs)}\n\n"
+def route(path, section):
+    _rendered = ""
+    for method in section:
+        _rendered += request(path, method, section[method])
 
-    _body = section.get("body", {})
-    if _body.get("content"):
-        full += f"{body(_body['content'], _body.get('lang', ''))}\n\n"
+    return _rendered
 
-    _responses = section.get("responses", {})
-    if len(_responses):
-        response_section = ""
-        for code in _responses:
-            response_section += response(code, _responses[code])
+def find_string(target, section):
+    retrieved = section.get(target)
 
-        full += f"__responses__\n\n{response_section}"
+    if not retrieved:
+        return ""
 
-    return foldable(f"{method} `{path}`", full)
+    return f"{retrieved}\n\n"
+
+def find_list(target, section):
+    retrieved = section.get(target, [])
+
+    if len(retrieved):
+        return f"{dict_list(retrieved)}\n\n"
+
+    return ""
+
+def find_body(section):
+    retrieved = section.get("body", {})
+
+    content = retrieved.get("content")
+    if not content:
+        return ""
+
+    lang = retrieved.get("lang", "").lower()
+    if lang == "json":
+        return f"{json_body(content)}\n\n"
+
+    return f"{body(content, lang)}\n\n"
+
+def find_responses(section):
+    retrieved = section.get("responses", {})
+
+    if not len(retrieved):
+        return ""
+
+    return "__responses__\n\n" + "".join([response(code, retrieved[code]) for code in retrieved])
