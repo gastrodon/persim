@@ -64,7 +64,7 @@ def foldable(summary, details):
 """
 
 def response(code, section):
-    full = f"- {code} - {section.get('title', '?')}"
+    full = f"- {code} - {section.get('title', '?')}\n"
     full += find_string("description", section)
     full += find_list("headers", section)
     full += find_body(section)
