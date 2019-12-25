@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import json, argparse
 from document import Document
 
