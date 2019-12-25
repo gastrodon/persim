@@ -122,4 +122,4 @@ def find_responses(section):
     if not len(retrieved):
         return ""
 
-    return "__responses__\n\n" + "".join([response(code, retrieved[code]) for code in retrieved])
+    return "__responses__\n\n" + "".join([response(code, retrieved[code]) for code in sorted(retrieved.keys())])

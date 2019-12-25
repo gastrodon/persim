@@ -101,4 +101,4 @@ class Document:
 
     @property
     def rendered(self):             # path, content
-        return "\n\n".join(render.route(it, self.routes[it]) for it in self.routes)
+        return "\n\n".join(render.route(it, self.routes[it]) for it in sorted(self.routes))
