@@ -7,6 +7,10 @@ Swagger may cause confusion. A persim berry might help with that
 
 - [x] Load yml files as a dict
 - [ ] Add `globals` where they belong
+    - [ ] request_headers
+    - [ ] response_headers
+    - [x] responses
 - [x] Add `vars` where they belong
-- [ ] Render the parsed dict to markdown
-- [ ] Write it to something
+- [ ] Sort the parsed dict
+- [x] Render the parsed dict to markdown
+- [x] Write it to something
