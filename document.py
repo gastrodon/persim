@@ -4,11 +4,7 @@ import render
 class Document:
     def __init__(self, content):
         self.json = yaml.safe_load(content)
-        self._global_parser_map = {
-            "responses": self._parse_globals_responses,
-            "request_headers": self._parse_globals_request_headers
-        }
-
+        
     def _get_var(self, name):
         var = self.vars
 
@@ -54,36 +50,36 @@ class Document:
         self.json["routes"] = self._get_var_dict(self.routes)
         return self
 
-    def _parse_globals_responses(self):
+    def _parse_globals_map(self, target):
         routes = self.routes
-        g_responses = self.globals.get("responses", {})
-        match_all = g_responses.get("*", {})
+        target_content = self.globals.get(target, {})
+        match_all = target_content.get("*", {})
 
         for route in routes:
             for method in routes[route]:
-                existing = routes[route][method].get("responses", {})
-                match_all = g_responses.get("*", {})
-                valid = g_responses.get(method, {})
-                routes[route][method]["responses"] = {**match_all, **valid, **existing}
+                existing = routes[route][method].get(target, {})
+                valid = target_content.get(method, {})
+                routes[route][method][target] = {**match_all, **valid, **existing}
 
-        self.json["routes"] = routes
-
-    def _parse_globals_request_headers(self):
+    def _parse_globals_list(self, target):
         routes = self.routes
-        g_headers = self.globals.get("request_headers", {})
+        target_content = self.globals.get(target, {})
 
         for route in routes:
             for method in routes[route]:
-                valid = [*g_headers.get("*", []), *g_headers.get(method, [])]
+                valid = [*target_content.get("*", []), *target_content.get(method, [])]
                 valid = [v for v in valid if len(v)]
-                existing = routes[route][method].get("headers", [])
-                routes[route][method]["headers"] = [*valid, *existing]
+                existing = routes[route][method].get(target, [])
+                routes[route][method][target] = [*valid, *existing]
 
         self.json["routes"] = routes
 
     def parse_globals(self):
-        for name in self.globals:
-            self._global_parser_map[name]()
+        for target in self.globals:
+            if target in {"responses"}:
+                self._parse_globals_map(target)
+            else:
+                self._parse_globals_list(target)
 
         return self
 

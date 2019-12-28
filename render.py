@@ -105,6 +105,8 @@ def find_list(target, section):
 
 def find_body(section):
     retrieved = section.get("body", {})
+    if not retrieved:
+        return ""
 
     content = retrieved.get("content")
     if not content:
