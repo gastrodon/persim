@@ -73,8 +73,9 @@ def response(code, section):
 
 def request(path, method, section):
     full = find_string("description", section)
+    full += find_list("url arguments", section)
     full += find_list("headers", section)
-    full += find_list("query_strings", section)
+    full += find_list("query strings", section)
     full += find_body(section)
     full += find_responses(section)
 
