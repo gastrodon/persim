@@ -99,7 +99,7 @@ def find_list(target, section):
     retrieved = section.get(target, [])
 
     if len(retrieved):
-        return f"{dict_list(retrieved)}\n\n"
+        return f"__{target}__\n\n{dict_list(retrieved)}\n\n"
 
     return ""
 
