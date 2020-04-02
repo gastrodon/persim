@@ -64,20 +64,7 @@ def foldable(summary, details):
 """
 
 def response(code, section):
-    full = f"- {code} - {section.get('title', '?')}\n"
-
-    for key in section:
-        val = section[key]
-
-        if isinstance(val, str):
-            full += find_string(key, section)
-
-            if isinstance(val, list):
-                full += find_list(key, section)
-
-    full += find_body(section)
-
-    return full
+    return f"- {code} - {section.get('title', '?')}\n{find_body(section)}"
 
 def request(path, method, section):
     full = ""
