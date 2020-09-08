@@ -5,10 +5,7 @@ __pycache__
 
 # ignore test files
 
-test.yml
-test.json
-test.md
-
+test*
 # ignore notes I keep
 
 *.txt
