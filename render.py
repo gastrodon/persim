@@ -1,130 +1,148 @@
 import json
 
-# Friendly api
+REQUEST_TEMPLATE = """\
+<details>
+<summary>{method} {route}</summary>
 
-headers = lambda h : dict_list(h)
-query_strings = lambda qs : dict_list(qs)
-body = lambda content, lang : code_block(content, lang)
-json_body = lambda content : code_block(json.dumps(content, indent = 4), "JSON")
+{description}
 
-# Mean functions
+{tables}
 
-def dict_list(sectoin):
-    """
-    Takes a list of maps (like those of headers or query strings)
-    and returns a markdown table representing that map
-    sectoin: map list to render
-    """
-    if not len(sectoin):
-        return ""
+{body}
 
-    cells = [
-        list(sectoin[0].keys()),
-        *[list(it.values()) for it in sectoin]
-    ]
-
-    return table(cells)
-
-def table(cells, filler = " "):
-    """
-    Takes a 2d array, makes a markdown table
-    filler: content to fill empty cells with
-    """
-
-    size_horizontal = max([len(sub) for sub in cells])
-    separator = " - ".join("|" * (1 + size_horizontal))
-    rows = [table_row(row, size = size_horizontal, filler = filler) for row in cells]
-    rows.insert(1, separator)
-
-    return "\n".join(rows)
-
-def table_row(cells, size = None, filler = " "):
-    """
-    Tales an array, makes a markdown table row
-    size: row size, if greater than the number of cells
-    filler: content to fill empty cells with
-    """
-
-    size = size if size else len(cells)
-    return "|" + "".join(f"{cell}|" for cell in cells) + "".join(s for s in f"{filler}|" * (size - len(cells)))
-
-def code_block(content, lang = ""):
-    """
-    Takes text and an optional lang to render a code block
-    content: content inside of this code block
-    lang: language for syntax highlighting
-    """
-    return f"```{lang}\n{content}\n```"
-
-def foldable(summary, details):
-    return f"""<details>
-<summary>{summary}</summary>
-{details}
+#### Responses
+{responses}
 </details>
 """
 
-def response(code, section):
-    return f"- {code} - {section.get('title', '?')}\n{find_body(section)}"
+TABLES_TEMPLATE = """\
+###### {title}
+{table}
+"""
 
-def request(path, method, section):
-    full = ""
+BODY_TEMPLATE = """\
+#### Body
+```{lang}
+{body}
+```
+"""
 
-    for key in section:
-        val = section[key]
+RESPONSE_TEMPLATE = """\
+- `{code}`
 
-        if isinstance(val, str):
-            full += find_string(key, section)
+  {description}
 
-        if isinstance(val, list):
-            full += find_list(key, section)
+  {body}
+"""
 
-    full += find_body(section)
-    full += find_responses(section)
 
-    return foldable(f"{method} {path}", full)
+def document(data):
+    return "\n".join([
+        request(route_key, method_key, method_data)
+        for route_key, route_data in data.items()
+        for method_key, method_data in route_data.items()
+    ])
 
-def route(path, section):
-    _rendered = ""
-    for method in section:
-        _rendered += request(path, method, section[method])
 
-    return _rendered
+def request(route, method, data):
+    return REQUEST_TEMPLATE.format(
+        method = method.upper(),
+        route = route,
+        description = data["description"],
+        tables = tables(data.get("tables", {})),
+        body = body(data.get("body", {})),
+        responses = "\n".join([
+            response(code, response_data)
+            for code, response_data in data["responses"].items()
+        ]),
+    )
 
-def find_string(target, section):
-    retrieved = section.get(target)
 
-    if not retrieved:
+def tables(data):
+    """
+    Render a collection of tables. For any table that is not rendered,
+    for example empty tables, it will be filtered out of the result
+
+    For some route, this should recieve the data
+    $<route>.<method>.tables
+    """
+    return "\n".join(
+        [
+            TABLES_TEMPLATE.format(
+                title = key,
+                table = table(value),
+            )
+            for key, value in data.items()
+            if table(value)
+        ]
+    )
+
+
+def response(code, data):
+    """
+    Given a status code and response, render it
+
+    For some route method, this should recieve the data
+    code, $<route>.<method>.<responses>[code]
+    """
+    return RESPONSE_TEMPLATE.format(
+        code = f"{code}",
+        description = data["description"],
+        body = body(data["body"])
+    )
+
+
+def body(data):
+    """
+    Render a request or response body. If the body is empty,
+    an empty string is returned
+
+    For some route, this should recieve the data
+    $<route>.<method>.body
+    $<route>.<method>.<responses>[n].body
+    """
+    if not data:
         return ""
 
-    return f"{retrieved}\n\n"
+    if (lang := data.get("lang", "").lower()) == "json":
+        data["content"] = json.dumps(
+            json.loads(data["content"]),
+            indent = 4,
+        )
 
-def find_list(target, section):
-    retrieved = section.get(target, [])
+    return BODY_TEMPLATE.format(
+        lang = lang,
+        body = data["content"],
+    )
 
-    if len(retrieved):
-        return f"__{target}__\n\n{dict_list(retrieved)}\n\n"
 
-    return ""
+def table(data):
+    """
+    Given a list of dicts, render it into a table.
+    The top row of the table will be the dict keys as a title
+    The following rows will be those values
+    If data is empty, an empty string is returned
 
-def find_body(section):
-    retrieved = section.get("body", {})
-    if not retrieved:
+    If the dicts are not consistent, the table will not render correctly
+    """
+    if not data:
         return ""
 
-    content = retrieved.get("content")
-    if not content:
-        return ""
+    return "\n".join([
+        table_row(list(data[0].keys())),
+        table_row([" - "] * len(data[0])),
+        *[table_row(list(it.values())) for it in data],
+    ])
 
-    lang = retrieved.get("lang", "").lower()
-    if lang == "json":
-        return f"{json_body(content)}\n\n"
 
-    return f"{body(content, lang)}\n\n"
-
-def find_responses(section):
-    retrieved = section.get("responses", {})
-
-    if not len(retrieved):
-        return ""
-
-    return "__responses__\n\n" + "".join([response(code, retrieved[code]) for code in sorted(retrieved.keys())])
+def table_row(cells, size=None):
+    """
+    Given an array, render it into a single table row
+        Size: optional row length, if different than
+    """
+    size = size if size else len(cells)
+    return "|" + "".join([
+        f"{cell}|"
+        for cell
+        in cells + [" "] * (size - len(cells))
+    ])
