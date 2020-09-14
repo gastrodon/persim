@@ -6,6 +6,7 @@ __pycache__
 # ignore test files
 
 test*
+
 # ignore notes I keep
 
 *.txt
