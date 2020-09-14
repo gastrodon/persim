@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
 import argparse, json, typing, yaml
-import preprocess, render
+import persim.preprocess as preprocess
+import persim.render as render
 
 
 def get_args() -> argparse.Namespace:
