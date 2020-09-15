@@ -10,24 +10,48 @@ def get_args() -> argparse.Namespace:
         description="Generate markdown docs for a REST API")
     parser.add_argument("-o", "--out", default="out.md", type=str)
     parser.add_argument("-a", "--append", action = "store_true")
-    parser.add_argument("file", nargs=1, default="")
+    parser.add_argument("file", nargs="+", default="")
     return parser.parse_args()
 
 
-def render_from(file: str) -> str:
-    with open(file) as stream:
-        data: str = yaml.safe_load(stream.read())
+def render_from(files: typing.List) -> str:
+    data: typing.Dict = {}
+
+    for file in files:
+        with open(file) as stream:
+            data = merge_json(data, yaml.safe_load(stream.read()))
+
 
     vars: typing.Dict = preprocess.interpolate(data.get("vars", {}))
     routes: typing.Dict = preprocess.interpolate_part(vars, data["routes"])
     return render.document(routes)
 
 
+def merge_json(target: typing.Dict, source: typing.Dict) -> typing.Dict:
+    merged: typing.Dict = {**target}
+
+    key: str
+    value: typing.Any
+    for key, value in source.items():
+        if not key in merged:
+            merged[key] = value
+            continue
+
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = merge_json(merged[key], value)
+
+        else:
+            merged[key] = value
+
+    return merged
+
+
+
 def main():
     args: argparse.Namespace = get_args()
     mode: str = "a" if args.append else "w"
     with open(args.out, mode) as stream:
-        stream.write(render_from(args.file[0]))
+        stream.write(render_from(args.file))
 
 if __name__ == "__main__":
     main()
