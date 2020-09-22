@@ -24,7 +24,7 @@ def render_from(files: typing.List) -> str:
 
     vars: typing.Dict = preprocess.interpolate(data.get("vars", {}))
     routes: typing.Dict = preprocess.interpolate_part(vars, data["routes"])
-    return render.document(routes)
+    return render.document({ key: routes[key] for key in sorted(routes) })
 
 
 def merge_json(target: typing.Dict, source: typing.Dict) -> typing.Dict:
@@ -44,7 +44,6 @@ def merge_json(target: typing.Dict, source: typing.Dict) -> typing.Dict:
             merged[key] = value
 
     return merged
-
 
 
 def main():
