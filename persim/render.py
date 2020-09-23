@@ -88,7 +88,7 @@ def response(code, data):
     return RESPONSE_TEMPLATE.format(
         code = f"{code}",
         description = data["description"],
-        body = body(data["body"])
+        body = body(data.get("body"))
     )
 
 
