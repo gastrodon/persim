@@ -5,6 +5,8 @@ import persim.preprocess as preprocess
 import persim.render as render
 
 
+LIMIT: int = 20
+
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate markdown docs for a REST API")
@@ -22,7 +24,14 @@ def render_from(files: typing.List) -> str:
             data = merge_json(data, yaml.safe_load(stream.read()))
 
 
-    vars: typing.Dict = preprocess.interpolate(data.get("vars", {}))
+    vars: typing.Dict = data.get("vars", {})
+    depth: int = 0
+    while "$" in str(vars := preprocess.interpolate(vars)):
+        if (depth := depth + 1) == LIMIT:
+            raise Exception(f"Could not interpolate vars past a depth of {LIMIT}")
+
+        continue
+
     routes: typing.Dict = preprocess.interpolate_part(vars, data["routes"])
     return render.document({ key: routes[key] for key in sorted(routes) })
 
