@@ -1,6 +1,6 @@
 import re, typing
 
-VAR_PATTERN = r"\$[a-zA-Z0-9\.\_\-]+"
+VAR_PATTERN = r"\$[a-zA-Z0-9\.\_\-]+(?=\b)"
 
 
 def interpolate(doc: typing.Dict) -> typing.Dict:
