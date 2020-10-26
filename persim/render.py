@@ -10,9 +10,13 @@ REQUEST_TEMPLATE = """\
 
 {body}
 
-#### Responses
 {responses}
 </details>
+"""
+
+RESPONSE_SECTION_TEMPLATE = """\
+##### Responses
+{responses}
 """
 
 TABLES_TEMPLATE = """\
@@ -51,10 +55,14 @@ def request(route, method, data):
         description = data["description"],
         tables = tables(data.get("tables", {})),
         body = body(data.get("body", {})),
-        responses = "\n".join([
-            response(code, response_data)
-            for code, response_data in data["responses"].items()
-        ]),
+        responses = RESPONSE_SECTION_TEMPLATE.format(
+            responses = "\n".join(
+                [
+                    response(code, response_data)
+                    for code, response_data in data["responses"].items()
+                ]
+            ),
+        ) if "responses" in data else "",
     )
 
 
